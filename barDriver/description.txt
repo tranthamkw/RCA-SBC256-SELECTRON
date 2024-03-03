@@ -1,1 +1,6 @@
-Selector bar driver
+Selector bar driver:
+
+Accepts digital (5V positive logic) input to toggle selector bar between 0V and -100V.
+
+Q-point: All bars at 0V to maintain current to eyelets.
+To select a window (bit address), the four bars surrounding the window must be at 0V.  Deslected window will have at least one bar at -100V
