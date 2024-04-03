@@ -3,3 +3,15 @@ Group H: decoded from bits A1 A0
 Group V’: decoded from bit A2
 Group V: decoded from bits A4 A3
 Group H’: decoded from bits A7 A6 A5
+
+
+The decoder also needs two other inputs:
+Qpoint:
+0 => sets all bars at 0V for quiescent operation
+1 => selected bars active based on input address
+
+Select:
+0 => selected bars active based on input address
+1 => deselect all bars.  i.e. all bars at -250V.  This is required when writing a 0 to a storage eyelet.
+
+Qpoint has priority. 
