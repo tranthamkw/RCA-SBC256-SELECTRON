@@ -4,3 +4,7 @@ Accepts digital (5V positive logic) input to toggle selector bar between 0V and 
 
 Q-point: All bars at 0V to maintain current to eyelets.
 To select a window (bit address), the four bars surrounding the window must be at 0V.  Deslected window will have at least one bar at -100V
+
+Digital in
+0 => Bar voltage at GND
+1 => Bar voltage at -250V (or whatever negative voltage is being used. -250 is optimum)
