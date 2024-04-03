@@ -8,3 +8,12 @@ To select a window (bit address), the four bars surrounding the window must be a
 Digital in
 0 => Bar voltage at GND
 1 => Bar voltage at -250V (or whatever negative voltage is being used. -250 is optimum)
+
+
+Selection bars are organized into circuits, each circuit organized by one of four groups: the H, H’, V, and V’ group.  In the quiescent state of the device, all bars are near cathode potential (0V).  To select a given eyelet (storage bit), one, and only one, circuit from each of the four groups (H, H’, V, and V’) is left at 0V while all other circuits are biased negatively (~ - 250V).  The bars forming a window for the selected eyelet will be at 0V, allowing electron beam transmission to the collector plate and appropriate eyelet.  All other ‘de-selected’ eyelets will have at least one bar of their respective window at -250V, deflecting the electron beam preventing it from reaching all other eyelets.
+There are eight circuits for the group H'
+There are four circuits for the group V
+There are two circuits for the group V'
+There are four circuits for the group H
+
+Each circuit is connected to a dedicated driver.  Organization is presented in "QuadDriverArrangement.png"
