@@ -1,0 +1,5 @@
+The internal organization and connection of the selector bars is designed to reduce the total number of electrical connections through the glass envelope.  They are also arranged and interconnected in such a way to permit simple decoding of an eight-bit digital address.  When selecting an eyelet, one of four connections from H group are selected (0V) thus determined by decoding the least two significant bits (LSB) of the address.  The V’ group has two connections, so the third address bit determines one of two V’ circuits.  The decoding of the next two address bits determines the one of four connections in the V group.  Finally, the H’ group has eight possible selections, requiring decoding of the final three most significant bits (MSB) of the address.  In summary, if an address is represented by bits A7 A6 A5 A4 A3 A2 A1 A0, then one circuit from each of the four groups is selected by:
+Group H: decoded from bits A1 A0
+Group V’: decoded from bit A2
+Group V: decoded from bits A4 A3
+Group H’: decoded from bits A7 A6 A5
