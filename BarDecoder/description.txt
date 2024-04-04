@@ -4,6 +4,7 @@ Group V’: decoded from bit A2
 Group V: decoded from bits A4 A3
 Group H’: decoded from bits A7 A6 A5
 
+Animation shows decoded address counting from 0b00000 to 0b11111 => the first 64 addresses
 
 The decoder also needs two other inputs:
 Qpoint:
