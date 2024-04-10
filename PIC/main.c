@@ -11,7 +11,7 @@
 */
 
 /*
-© [2024] Microchip Technology Inc. and its subsidiaries.
+Â© [2024] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -55,27 +55,15 @@ int main(void)
     
     SYSTEM_Initialize();
 
-    // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
-    // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global and Peripheral Interrupts 
-    // Use the following macros to: 
-
-    // Enable the Global Interrupts 
-    //INTERRUPT_GlobalInterruptEnable(); 
-
-    // Disable the Global Interrupts 
-    //INTERRUPT_GlobalInterruptDisable(); 
-
-    // Enable the Peripheral Interrupts 
-    //INTERRUPT_PeripheralInterruptEnable(); 
-
-    // Disable the Peripheral Interrupts 
-    //INTERRUPT_PeripheralInterruptDisable(); 
+    
 
        
 SELECT=0;
 READ=1;
 WRITE=0;
 QPOINT=1;
+
+	
 /*
  
  Select
@@ -91,6 +79,8 @@ QPOINT=1;
     
 //define times. See patent 2,635,201, Figure 7 and text within
 /*
+unknown clock speed. dang it. 
+
  delay x    	t(uS)
 10              137
 20          	254
@@ -110,7 +100,7 @@ QPOINT=1;
 
 tsr = 2; // settling time after deselect bars before write pulse applied
 tp = 10; // time that write pulse is active
-td = 10; // time for write pulse to decay. This is set by RC time constant in write plate driver. This time must match.  This marks the end of deselect
+td = 10; // time for write pulse to decay. This marks the end of deselect
 // used for the case of writing a zero.
 tz = 2; // safety time after write pulse done, deselect done, before re-establish Q-point
 bit=0;
