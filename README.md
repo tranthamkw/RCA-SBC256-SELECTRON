@@ -1,5 +1,6 @@
-Project goal:
-develop a driver to demonstrate  operation a RCA SB 256 selectron tube.
+Project goals:
+1. develop a driver to demonstrate  operation a RCA SB 256 selectron tube.
+2. educate:  there are some very poor if not wrong descriptions in the interwebs about how this device works - vis-a-vis physics of operation.  These descriptions need to be corrected.
 
 Initial information  and references taken from https://www.rcaselectron.com/index1.html with much appreciation to Charles S. Osborne for collecting this information.
 
