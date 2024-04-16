@@ -14,3 +14,6 @@ Specific electrical implementation to drive the SB256
 
 
 4/12/22 - The data sheet appears to be incorrect with regard to selector bar pins.  The groups (H, V, H', and V') appear correct, but any given pin out of order.  An obvious error in the data sheet does not show a pin for H3, and shows two pins for H4.  The H' group appear to be out of order (Or I miss-labeled the wires when arranging the socket). I retract the statement that the V and H group are reversed.  I did shift the H' pins around so that each 64-bit block is written in order. The bit - order of write was determined by writing 1 then 0 fifty times with sufficient pause between so I could label each address. .. before the PIC moved to the next address.  This order is documented in /Bar/Decoder
+
+4/12/22  Reduced delay times in PIC code to see how fast we can reliably write to the memory.  An unused PIC output wrote 0 at the begining of the write process, then 1 at the end of writing all 256 bits.  The time to write 0 to the eyelets is slightly longer than 1, (see the eyelet I-V curve and writing description).  The nominal time to write is about 60mS. Oh gosh! 256 bits in 60mS!
+256 bits / (1024^2 bits per MB) / 60mS = 0.004 MB/S.  OR, put another way, it would take 245 seconds = 4 ish minutes to write a MB.  
