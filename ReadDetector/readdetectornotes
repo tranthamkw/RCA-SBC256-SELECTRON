@@ -1,1 +1,9 @@
 read detector
+
+
+6-25-26
+read detector circuit working. 
+Representive scope traces for reading a "1":
+DS0019.bmp, DS0017.bmp
+Representave traces for a "0":
+DS0018.bmp, DS0016.bmp
