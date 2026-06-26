@@ -17,3 +17,7 @@ Specific electrical implementation to drive the SB256
 
 4/12/22  Reduced delay times in PIC code to see how fast we can reliably write to the memory.  An unused PIC output wrote 0 at the begining of the write process, then 1 at the end of writing all 256 bits.  The time to write 0 to the eyelets is slightly longer than 1, (see the eyelet I-V curve and writing description).  The nominal time to write is about 60mS. Oh gosh! 256 bits in 60mS!
 256 bits / (1024^2 bits per MB) / 60mS = 0.004 MB/S.  OR, put another way, it would take 245 seconds = 4 ish minutes to write a MB.  
+
+
+6-25-26
+first attempts to get a read detector working. posted schematics and some scope timing diagrams.  Coding PIC to document which bit locations do not read what was written to them. So far appproximatily 10 errors out of 256 bits. 
