@@ -7,3 +7,7 @@ Representive scope traces for reading a "1":
 DS0019.bmp, DS0017.bmp,20,21,22
 Representave traces for a "0":
 DS0018.bmp, DS0016.bmp
+
+DS0020,21,22.bmp.  yellow curve output of transimpedance amplifier. blue, output of lowpass & non-inverting amplifier
+
+added a comparitor to set a "lower level discriminator" to set the minimum pulse height to triger the RS latch
