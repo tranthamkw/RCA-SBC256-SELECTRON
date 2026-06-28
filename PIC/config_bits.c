@@ -1,17 +1,19 @@
 /**
- * CONFIGURATION BITS Generated Driver Source File
+ * Configuration Bits Generated Driver Source File
  * 
  * @file config_bits.c
  * 
  * @ingroup config_bitsdriver
  * 
- * @brief This is the generated Device Configuration bits file.
+ * @brief This file contains the API Implementation for the Device Configuration Bits driver.
  *
- * @version Driver Version 1.0.0
+ * @version Driver Version 1.0.1
+ *
+ * @version Package Version 1.0.3
 */
 
 /*
-© [2024] Microchip Technology Inc. and its subsidiaries.
+Â© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -62,7 +64,6 @@
 #pragma config STVREN = ON    // Stack Full/Underflow Reset Enable bit->Stack full/underflow will cause Reset
 #pragma config LVP = ON    // Single-Supply ICSP Enable bit->Single-Supply ICSP enabled if MCLRE is also 1
 #pragma config XINST = OFF    // Extended Instruction Set Enable bit->Instruction set extension and Indexed Addressing mode disabled (Legacy mode)
-#pragma config DEBUG = OFF    // Background Debug->Disabled
 
 //CONFIG5L
 #pragma config CP0 = OFF    // Code Protection Block 0->Block 0 (000800-003FFFh) not code-protected
