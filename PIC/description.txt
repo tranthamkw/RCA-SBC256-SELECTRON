@@ -1,3 +1,23 @@
 
 Code used to develop the selectron project.
 
+General files needed to build the project as describe. These are the basic configurations and starting code.
+Project is/was built in MPLABX; and one needs to know how to use this enviroment
+
+PORT D: all outputs. used to select an address. 
+Port definitions for controlling other high voltage lines to the selectron
+#define SELECT    LATBbits.LATB3  // Controls the selection bars / matrix decoding
+#define WRITE     LATBbits.LATB1  // Controls the +360V writing pulse plate
+#define QPOINT    LATBbits.LATB2  // Controls quiescent/idle state timing logic
+#define READ      LATBbits.LATB0  // Controls the +150V / -100V read plate pulse
+
+port definitions for reading a bit
+#define RESETRS   LATBbits.LATB4  // Controls the read sense wire reset logic
+#define READBIT PORTBbits.RB5
+
+port definitions for controlling the LCD
+// Control Pin Definitions
+#define LCD_RS LATAbits.LATA4
+#define LCD_E  LATAbits.LATA5
+data to LCD: RA0-RA3
+
