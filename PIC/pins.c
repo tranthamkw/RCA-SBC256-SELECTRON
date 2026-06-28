@@ -8,11 +8,11 @@
  * @brief This is generated driver implementation for pins. 
  *        This file provides implementations for pin APIs for all pins selected in the GUI.
  *
- * @version Driver Version 3.1.0
+ * @version Driver Version 3.1.1
 */
 
 /*
-© [2024] Microchip Technology Inc. and its subsidiaries.
+Â© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -45,33 +45,33 @@ void PIN_MANAGER_Initialize(void)
     LATC = 0x0;
     LATD = 0x0;
     LATE = 0x0;
+    /**
+    ODx registers
+    */
 
     /**
     TRISx registers
     */
-    TRISA = 0xFF;
-    TRISB = 0xF0;
-    TRISC = 0xFF;
+    TRISA = 0xC0;
+    TRISB = 0xE0;
+    TRISC = 0xF8;
     TRISD = 0x0;
     TRISE = 0x87;
 
     /**
     ANSELx registers
     */
-    ANSELA = 0x2F;
-    ANSELB = 0x30;
-    ANSELC = 0xFC;
+    ANSELA = 0x0;
+    ANSELB = 0x0;
+    ANSELC = 0xF8;
     ANSELD = 0x0;
     ANSELE = 0x7;
 
     /**
     WPUx registers
     */
-    WPUB = 0xFF;
+    WPUB = 0xC0;
 
-    /**
-    ODx registers
-    */
 
     /**
     SLRCONx registers
