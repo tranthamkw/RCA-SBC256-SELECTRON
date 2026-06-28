@@ -7,11 +7,13 @@
  * 
  * @brief This file contains the API implementation for the Clock driver.
  *
- * @version Driver Version 1.0.0
+ * @version Driver Version 1.0.1
+ *
+ * @version Package Version 1.0.5 
 */
 
 /*
-© [2024] Microchip Technology Inc. and its subsidiaries.
+Â© [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -36,13 +38,15 @@
 
 void CLOCK_Initialize(void)
 {
-    // Set the CLOCK CONTROL module to the options selected in the user interface.
-    // SCS INTOSC; IRCF 16MHz_HFINTOSC; IDLEN disabled; 
-    OSCCON = 0x72;
-    // PRISD enabled; SOSCGO disabled; MFIOSEL false; 
-    OSCCON2 = 0x4;
-    // TUN 0x00; PLLEN false; INTSRC disabled; 
-    OSCTUNE = 0x0;
+    OSCCON = (2 << _OSCCON_SCS_POSN)   // SCS INTOSC
+        | (7 << _OSCCON_IRCF_POSN)   // IRCF 16MHz_HFINTOSC
+        | (0 << _OSCCON_IDLEN_POSN);  // IDLEN disabled
+    OSCCON2 = (1 << _OSCCON2_PRISD_POSN)   // PRISD enabled
+        | (0 << _OSCCON2_SOSCGO_POSN)   // SOSCGO disabled
+        | (0 << _OSCCON2_MFIOSEL_POSN);  // MFIOSEL disabled
+    OSCTUNE = (0 << _OSCTUNE_TUN_POSN)   // TUN 0x0
+        | (0 << _OSCTUNE_PLLEN_POSN)   // PLLEN disabled
+        | (0 << _OSCTUNE_INTSRC_POSN);  // INTSRC INTRC
 }
 /**
  End of File
