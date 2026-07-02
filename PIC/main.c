@@ -35,8 +35,14 @@
 #include "mcc_generated_files/system/system.h"
 #include <xc.h>
 #include "LCD_HD44780.h"
+#include <stdio.h>
 
 
+//#define SELECT PORTBbits.RB3
+//#define WRITE PORTBbits.RB1
+//#define QPOINT PORTBbits.RB2
+//#define READ PORTBbits.RB0
+//#define RESETRS PORTBbits.RB4
 #define SELECT    LATBbits.LATB3  // Controls the selection bars / matrix decoding
 #define WRITE     LATBbits.LATB1  // Controls the +360V writing pulse plate
 #define QPOINT    LATBbits.LATB2  // Controls quiescent/idle state timing logic
@@ -68,6 +74,26 @@
     unsigned char r_list[19]= {20,12,16,52,40,51,39,19,11,15,17,9,49,45,50,46,38,18,6};
     unsigned char n_list[24]={20,52,51,19,17,49,50,18,12,44,47,15,13,45,38,6,4,36,3,1,33,34,2};
     unsigned char o_list[20]= {12,16,52,44,48,40,51,39,19,7,17,5,49,37,50,42,46,38,10,14};
+    unsigned char gadd[251] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 
+    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 
+    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 
+    80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 
+    96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 
+    111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 
+    127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 140, 141, 142, 143, 144, 
+    145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 
+    161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 
+    178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 
+    194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 
+    210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 
+    226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 
+    242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 255
+};
+    const char* msg = "HELLO WORLD\nMY NAME IS JOE";
+
 
 
 void init_SB256(){
@@ -105,7 +131,7 @@ void init_SB256(){
 }
 
 
-void write_bit(char add, char mybit){
+void write_bit(unsigned char add, unsigned char mybit){
     PORTD = add;//SELECT AN ADDRESS
     __delay_us(200);
     QPOINT = 0;// ALL BARS -HV, ALLOW SELECTION
@@ -125,8 +151,8 @@ void write_bit(char add, char mybit){
     QPOINT = 1; //RETURN TO Q-POINT;  ALL BARS  = 0V     
 }
 
-char read_bit(char add){
-    char j;
+unsigned char read_bit(unsigned char add){
+    unsigned char j;
         RESETRS =0;
         READ=1;//turn off current to Faraday cage
          //begin read process. it should have been off long before reaching this 
@@ -153,10 +179,10 @@ char read_bit(char add){
 }
 
 void displaySelectron(){
-    char address;
-    char i;
+    unsigned char address;
+    unsigned char i;
     
-    // displays SELECTRON
+    // displays "SELECTRON"
      //Clear
         for (address = 0;address<0xFF;address++){            
             __delay_ms(1);    
@@ -237,8 +263,8 @@ void displaySelectron(){
 
 void testMemory (char bit){
     
-    char address;
-    char i,k;
+    unsigned char address;
+    unsigned char i,k;
     unsigned char error_log[MAX_ERRORS]; 
     unsigned char error_count = 0; 
     
@@ -296,6 +322,53 @@ void testMemory (char bit){
             }
         }  
 }
+
+// The main serialization function
+void stream_message_to_selectron(const char* message) {
+    int total_bits_written = 0;
+    int char_index = 0;
+    char current_char;
+    int bit;
+    unsigned char bit_value;
+    
+    // Loop until we hit the null terminator '\0' (end of string)
+    while (message[char_index] != '\0') {
+        current_char = message[char_index];
+
+        // Process all 8 bits of the current character (MSB to LSB)
+        for (bit = 7; bit >= 0; bit--) {
+            
+            // Safety check: Prevent overflowing the 256-bit tube capacity
+            if (total_bits_written >= 251) {
+                //printf("\nWarning: Out of Selectron storage! Truncating message.\n");
+                return;
+            }
+
+            // Extract the single bit value (0 or 1) using a bitwise mask
+            bit_value = (current_char >> bit) & 1;
+
+            // --- Hardware Interface Commands ---
+            selectron_set_address(total_bits_written);
+            selectron_write_bit(bit_value);
+            // ------------------------------------
+
+            total_bits_written++;
+        }
+        char_index++;
+    }
+
+    // Explicitly write the 8-bit Null Terminator (all 0s) to mark the end of the text
+    for (bit = 7; bit >= 0; bit--) {
+        if (total_bits_written >= 251) return;
+        
+        selectron_set_address(total_bits_written);
+        selectron_write_bit(0); 
+        total_bits_written++;
+    }
+
+    //printf("\nSuccessfully wrote %d bits to the Selectron tube.\n", total_bits_written);
+}
+
 /*
     Main application
 */
@@ -338,13 +411,29 @@ int main(void)
     
     
     
-    //READ=0;   //makes it visual
-    READ=1;//make it not
+    READ=0;   //makes it visual
+    //READ=1;//make it not
     while(1) {
+       
+        LCD_SetCursor(2,1);
+        LCD_String("WrAdd:");
+        LCD_SetCursor(2,11);
+        LCD_String("WrData:");
+        for (address = 0;address<251;address++){            
+            __delay_ms(10);   
+            write_bit(gadd[address], bit);
+            LCDWriteHex(gadd[address], 2, 8); 
+            LCDWriteHex(bit, 2, 18); 
+        }
         
-        testMemory (bit);
+          
+        
+        __delay_ms(2000); 
+        
+        //testMemory (bit);
         //displaySelectron();
-        bit=!bit;     
+        bit=!bit;   
+        
     
     }   
    
