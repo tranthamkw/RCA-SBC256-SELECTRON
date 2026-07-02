@@ -325,7 +325,7 @@ void testMemory (char bit){
 
 // The main serialization function
 void stream_message_to_selectron(const char* message) {
-    int total_bits_written = 0;
+    unsigned char total_bits_written = 0;
     int char_index = 0;
     char current_char;
     int bit;
@@ -348,8 +348,7 @@ void stream_message_to_selectron(const char* message) {
             bit_value = (current_char >> bit) & 1;
 
             // --- Hardware Interface Commands ---
-            selectron_set_address(total_bits_written);
-            selectron_write_bit(bit_value);
+            write_bit(gadd[total_bits_written], bit_value);
             // ------------------------------------
 
             total_bits_written++;
@@ -361,13 +360,60 @@ void stream_message_to_selectron(const char* message) {
     for (bit = 7; bit >= 0; bit--) {
         if (total_bits_written >= 251) return;
         
-        selectron_set_address(total_bits_written);
-        selectron_write_bit(0); 
+        write_bit(gadd[total_bits_written], 0);
         total_bits_written++;
     }
 
     //printf("\nSuccessfully wrote %d bits to the Selectron tube.\n", total_bits_written);
 }
+
+// Reads the Selectron memory and populates your destination string array
+void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_size) {
+    unsigned char total_bits_read = 0;
+    unsigned char char_index = 0;
+    char current_char = 0;
+    unsigned char running = 1;
+
+    // Safety check: ensure our output buffer has at least room for a null terminator
+    if (max_buffer_size == 0) return;
+
+    while (running) {
+        current_char = 0; // Clear character buffer
+
+        // Assemble 8 bits into a single character (MSB to LSB)
+        for (unsigned char i = 0; i < 8; i++) {
+            unsigned char bit = 7 - i;
+            
+            // Call your optimized prototype function
+            unsigned char physical_bit = read_bit(gadd[total_bits_read]);
+            
+            if (physical_bit == 1) {
+                current_char |= (1 << bit);
+            }
+
+            // Safety brake: stop if we read the final bit of the tube (address 255)
+            if (total_bits_read == 255) {
+                running = 0; 
+            }
+            total_bits_read++;
+        }
+
+        // Store the assembled character inside your array
+        output_buffer[char_index] = current_char;
+        char_index++;
+
+        // Stop if we hit the Null Terminator OR run out of array space
+        // (Leaving 1 byte free at the very end of the array for a guaranteed null)
+        if (current_char == '\0' || char_index >= (max_buffer_size - 1)) {
+            break;
+        }
+    }
+
+    // Force a strict null terminator at the end of the text string 
+    // to guarantee safe printing to your LCD screen
+    output_buffer[char_index] = '\0';
+}
+
 
 /*
     Main application
