@@ -36,6 +36,8 @@
 #include <xc.h>
 #include "LCD_HD44780.h"
 #include <stdio.h>
+#include <string.h>
+
 
 
 //#define SELECT PORTBbits.RB3
@@ -184,10 +186,10 @@ void displaySelectron(){
     
     // displays "SELECTRON"
      //Clear
-        for (address = 0;address<0xFF;address++){            
+        do{            
             __delay_ms(1);    
             write_bit(address, 0);
-        }       
+        } while (++address != 0);    
         //write 'S E'
         for (i=0;i<18;i++){
             __delay_ms(1);
@@ -200,10 +202,10 @@ void displaySelectron(){
         __delay_ms(500); 
        
         //Clear
-        for (address = 0;address<0xFF;address++){            
-            __delay_ms(1);   
+        do{            
+            __delay_ms(1);    
             write_bit(address, 0);
-        }
+        } while (++address != 0); 
         //write 'L E'
         for (i=0;i<11;i++){
             __delay_ms(1);
@@ -216,10 +218,10 @@ void displaySelectron(){
         __delay_ms(500); 
         
         //Clear
-        for (address = 0;address<0xFF;address++){            
-            __delay_ms(1);   
+        do{            
+            __delay_ms(1);    
             write_bit(address, 0);
-        }
+        } while (++address != 0); 
         //write 'C T '
         for (i=0;i<12;i++){
             __delay_ms(1);
@@ -232,10 +234,10 @@ void displaySelectron(){
         __delay_ms(500);
         
         //Clear
-        for (address = 0;address<0xFF;address++){            
-            __delay_ms(1);   
+        do{            
+            __delay_ms(1);    
             write_bit(address, 0);
-        }
+        } while (++address != 0); 
         //write 'R O '
         for (i=0;i<19;i++){
             __delay_ms(1);
@@ -248,10 +250,10 @@ void displaySelectron(){
         __delay_ms(500);
         
         //Clear
-        for (address = 0;address<0xFF;address++){            
-            __delay_ms(1);  
+        do{            
+            __delay_ms(1);    
             write_bit(address, 0);
-        }
+        } while (++address != 0); 
         //write 'N '
         for (i=0;i<24;i++){
             __delay_ms(1);
@@ -261,7 +263,7 @@ void displaySelectron(){
     
 }
 
-void testMemory (char bit){
+void testMemory (unsigned char bit){
     
     unsigned char address;
     unsigned char i,k;
@@ -276,17 +278,18 @@ void testMemory (char bit){
         LCD_SetCursor(2,11);
         LCD_String("WrData:");
         __delay_ms(DELAY_TIME);
-        for (address = 0;address<0xFF;address++){            
+        do{            
             __delay_ms(DELAY_TIME);   
             write_bit(address, bit);
             LCDWriteHex(address, 2, 8); 
             LCDWriteHex(bit, 2, 18); 
-        }
+        } while (++address != 0);
+        
         LCD_SetCursor(2,1);
         LCD_String("RdAdd:");
         LCD_SetCursor(2,11);
         LCD_String("RdData:");
-        for (address = 0;address<0xFF;address++){            
+        do{            
             __delay_ms(DELAY_TIME);   
             i=read_bit(address);
             if (i^bit) {
@@ -298,7 +301,7 @@ void testMemory (char bit){
             }
             LCDWriteHex(address, 2, 8); 
             LCDWriteHex(i, 2, 18); 
-        }
+        } while (++address != 0);
         
         //Prepare report
         if ((error_count==0)||(error_count>MAX_ERRORS)){
@@ -322,50 +325,59 @@ void testMemory (char bit){
             }
         }  
 }
+//TO DO  change all for (address) loops to DO WHILE loops like this.)
+void toggle_display(unsigned char bit){
+    unsigned char address;
+    address=0;
+        LCD_SetCursor(2,1);
+        LCD_String("WrAdd:");
+        LCD_SetCursor(2,11);
+        LCD_String("WrData:");
+        LCDWriteHex(bit, 2, 18); 
+        do {            
+            __delay_ms(10);   
+            write_bit(address, bit);
+            LCDWriteHex(address, 2, 8);    
+        } while (++address != 0);
+}
 
-// The main serialization function
 void stream_message_to_selectron(const char* message) {
-    unsigned char total_bits_written = 0;
-    int char_index = 0;
+    unsigned int expected_bits;
+    unsigned char total_bits_written;
+    unsigned char char_index,bit,bit_value,i;
     char current_char;
-    int bit;
-    unsigned char bit_value;
     
-    // Loop until we hit the null terminator '\0' (end of string)
+    expected_bits = (strlen(message) + 1) * 8;
+
+    if (expected_bits > 251) {// number of good bits.
+        // Optional: Call an error routine, blink an LED, or truncate here
+        return; 
+    }
+
+    total_bits_written = 0;
+    char_index = 0;
+
+    // 3. Write the body characters
     while (message[char_index] != '\0') {
         current_char = message[char_index];
 
-        // Process all 8 bits of the current character (MSB to LSB)
-        for (bit = 7; bit >= 0; bit--) {
-            
-            // Safety check: Prevent overflowing the 256-bit tube capacity
-            if (total_bits_written >= 251) {
-                //printf("\nWarning: Out of Selectron storage! Truncating message.\n");
-                return;
-            }
-
-            // Extract the single bit value (0 or 1) using a bitwise mask
+        for (i = 0; i < 8; i++) {
+            bit = 7 - i; 
             bit_value = (current_char >> bit) & 1;
-
-            // --- Hardware Interface Commands ---
             write_bit(gadd[total_bits_written], bit_value);
-            // ------------------------------------
-
             total_bits_written++;
-        }
+        }// bit i
         char_index++;
-    }
+    }//while
 
-    // Explicitly write the 8-bit Null Terminator (all 0s) to mark the end of the text
-    for (bit = 7; bit >= 0; bit--) {
-        if (total_bits_written >= 251) return;
-        
+    // 4. Write the 8-bit Null Terminator (\0)
+    for (i = 0; i < 8; i++) {
+        bit = 7 - i;
         write_bit(gadd[total_bits_written], 0);
         total_bits_written++;
-    }
+    }//bit i
+}// stream
 
-    //printf("\nSuccessfully wrote %d bits to the Selectron tube.\n", total_bits_written);
-}
 
 // Reads the Selectron memory and populates your destination string array
 void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_size) {
@@ -373,26 +385,24 @@ void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_s
     unsigned char char_index = 0;
     char current_char = 0;
     unsigned char running = 1;
+    unsigned char physical_bit,i,bit;
 
     // Safety check: ensure our output buffer has at least room for a null terminator
     if (max_buffer_size == 0) return;
 
     while (running) {
         current_char = 0; // Clear character buffer
-
         // Assemble 8 bits into a single character (MSB to LSB)
-        for (unsigned char i = 0; i < 8; i++) {
-            unsigned char bit = 7 - i;
-            
-            // Call your optimized prototype function
-            unsigned char physical_bit = read_bit(gadd[total_bits_read]);
+        for (i = 0; i < 8; i++) {
+            bit = 7 - i;
+            physical_bit = read_bit(gadd[total_bits_read]);
             
             if (physical_bit == 1) {
                 current_char |= (1 << bit);
             }
 
-            // Safety brake: stop if we read the final bit of the tube (address 255)
-            if (total_bits_read == 255) {
+            // stop if we read the final bit of the tube (address 251 of gadd[])
+            if (total_bits_read == 250) {
                 running = 0; 
             }
             total_bits_read++;
@@ -422,9 +432,8 @@ void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_s
 int main(void)
 {
     
-    char address;
-    char bit;
-    char i;
+    unsigned char address;
+    unsigned char i, bit;
 
     SYSTEM_Initialize();
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
@@ -442,9 +451,6 @@ int main(void)
 
     // Disable the Peripheral Interrupts 
     //INTERRUPT_PeripheralInterruptDisable(); 
-
-    READ = 0;
-    
     
     init_SB256();          
     bit=0;
@@ -454,30 +460,15 @@ int main(void)
     LCD_Init();                 // Run HD44780 4-bit initialization sequence
     
     
-    
-    
-    
-    READ=0;   //makes it visual
-    //READ=1;//make it not
+    //READ=0;   //makes it visual
+    READ=1;//make it not
     while(1) {
-       
-        LCD_SetCursor(2,1);
-        LCD_String("WrAdd:");
-        LCD_SetCursor(2,11);
-        LCD_String("WrData:");
-        for (address = 0;address<251;address++){            
-            __delay_ms(10);   
-            write_bit(gadd[address], bit);
-            LCDWriteHex(gadd[address], 2, 8); 
-            LCDWriteHex(bit, 2, 18); 
-        }
+         
+        //toggle_display(bit);
+        __delay_ms(1000); 
         
-          
-        
-        __delay_ms(2000); 
-        
-        //testMemory (bit);
-        //displaySelectron();
+        testMemory (bit);//requires READ=1;
+        //displaySelectron();//requires READ=0;
         bit=!bit;   
         
     
