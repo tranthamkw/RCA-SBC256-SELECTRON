@@ -24,3 +24,5 @@ first attempts to get a read detector working. posted schematics and some scope 
 
 7-3-26: presently best operation with filament at 19.7V, 1.11 A
 
+7-3-26:  Greatly reduced read errors. delay time between read/write each bit 100uS.  moved reading RS latch to 150uS and extended time to turn off READ 75uS.  Able to save and read ASCII messages to SB256
+
