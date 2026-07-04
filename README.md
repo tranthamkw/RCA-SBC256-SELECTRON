@@ -21,3 +21,6 @@ Specific electrical implementation to drive the SB256
 
 6-25-26
 first attempts to get a read detector working. posted schematics and some scope timing diagrams.  Coding PIC to document which bit locations do not read what was written to them. So far appproximatily 10 errors out of 256 bits. 
+
+7-3-26: presently best operation with filament at 19.7V, 1.11 A
+
