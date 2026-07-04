@@ -35,36 +35,14 @@
 #include "mcc_generated_files/system/system.h"
 #include <xc.h>
 #include "LCD_HD44780.h"
+#include "SB256.h"
+
 #include <stdio.h>
 #include <string.h>
 
 
-
-//#define SELECT PORTBbits.RB3
-//#define WRITE PORTBbits.RB1
-//#define QPOINT PORTBbits.RB2
-//#define READ PORTBbits.RB0
-//#define RESETRS PORTBbits.RB4
-#define SELECT    LATBbits.LATB3  // Controls the selection bars / matrix decoding
-#define WRITE     LATBbits.LATB1  // Controls the +360V writing pulse plate
-#define QPOINT    LATBbits.LATB2  // Controls quiescent/idle state timing logic
-#define READ      LATBbits.LATB0  // Controls the +150V / -100V read plate pulse
-#define RESETRS   LATBbits.LATB4  // Controls the read sense wire reset logic
-
-#define READBIT PORTBbits.RB5
-#define _XTAL_FREQ 16000000 // Define clock frequency for macros
-
-#define tsr 70
-// settling time after deselect bars before write pulse applied 8 -> 70uS
-#define tp 105
-// time that write pulse is active 12 -> 105uS
-#define td 70
-// time for write pulse to decay. 8 ->70uS
-// used for the case of writing a zero.
-#define tz 88
-// safety time after write pulse done, deselect done, before re-establish Q-point 10->88uS
 #define MAX_ERRORS 12
-#define DELAY_TIME 10
+#define DELAY_TIME 100  //microseconds
 
 
 
@@ -76,16 +54,16 @@
     unsigned char r_list[19]= {20,12,16,52,40,51,39,19,11,15,17,9,49,45,50,46,38,18,6};
     unsigned char n_list[24]={20,52,51,19,17,49,50,18,12,44,47,15,13,45,38,6,4,36,3,1,33,34,2};
     unsigned char o_list[20]= {12,16,52,44,48,40,51,39,19,7,17,5,49,37,50,42,46,38,10,14};
-    unsigned char gadd[251] = {
+    const unsigned char gadd[247] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 
-    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 
     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 
-    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 
+    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 77, 78, 79, 
     80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 
     96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 
     111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 
-    127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 138, 140, 141, 142, 143, 144, 
+    127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 140, 141, 142, 144, 
     145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 
     161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 
     178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 
@@ -94,91 +72,9 @@
     226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 
     242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 255
 };
-    const char* msg = "HELLO WORLD\nMY NAME IS JOE";
 
+    const char* msg = "HELLO WORLD!\nSB256";
 
-
-void init_SB256(){
-    SELECT=0;
-    READ=1;
-    WRITE=1;
-    QPOINT=1;
-    
-    /*
-    WRITE
-    1 = Idle Write plate = 0V
-    0 = Select active. write plate = 360V.
-    
-    QPOINT
-    1 = Idle Q-point. All outputs 0V.  This allows maintaining current
-    0 = Select active. See SELECT status for selector-bar status
-     
-    SELECT
-    1 = Address selected bar = 0V, all others = -250V
-    0 = De-select all; when writing 0; ALL outputs -250V
-    
-    READ 
-     0 = +HV. allow electron beam through. Use this for constant visual display
-     1 = -100 V. stop electron beam      
-     */
-     
-    READ=0;
-    WRITE = 0;//WRITE TO +HV
-    __delay_us(tp);
-    QPOINT = 0;// ALL BARS -HV               
-    __delay_us(tp);
-    WRITE = 1;  
-    
-    RESETRS =0;
-}
-
-
-void write_bit(unsigned char add, unsigned char mybit){
-    PORTD = add;//SELECT AN ADDRESS
-    __delay_us(200);
-    QPOINT = 0;// ALL BARS -HV, ALLOW SELECTION
-    SELECT = 1;//ADDRESS SELECTED BARS = 0V, ALL OTHERS -250V
-    __delay_us(tsr);
-    WRITE = 0;//WRITE PLATE TO +360
-    __delay_us(tp);
-  // IF WRITTING 0, SELECT=0 
-    if (mybit==0) {
-        SELECT=0;  //DESELECT ALL BARS; ALL BARS = -250V
-        __delay_us(tp);
-    }      
-    WRITE = 1;// RETURN WRITE PULSE TO 0V
-    __delay_us(td);       
-    SELECT = 1;//RETURN SELECT, ADDRESS SELECTED BARS = 0V
-    __delay_us(tz);
-    QPOINT = 1; //RETURN TO Q-POINT;  ALL BARS  = 0V     
-}
-
-unsigned char read_bit(unsigned char add){
-    unsigned char j;
-        RESETRS =0;
-        READ=1;//turn off current to Faraday cage
-         //begin read process. it should have been off long before reaching this 
-        PORTD = add;//SELECT AN ADDRESS
-        __delay_us(100);
-        QPOINT = 0;// ALL BARS -HV, ALLOW SELECTION
-        SELECT = 1;//ADDRESS SELECTED BARS = 0V, ALL OTHERS -250V
-        __delay_us(100);
-        RESETRS =1;// reset the RS Latch
-        __delay_us(10);//pulse width of RS reset
-        RESETRS =0;
-        
-        READ=0; // now open the read plate
-        __delay_us(100); //pulse the read plate
-         j=READBIT; //read bit durring pulse of read
-        __delay_us(100); //pulse the read plate
-        READ=1;
-        __delay_us(20);
-       
-        SELECT = 1;//RETURN SELECT, ADDRESS SELECTED BARS = 0V
-        __delay_us(tz);
-        QPOINT = 1; //RETURN TO Q-POINT;  ALL BARS  = 0V   
-        return j;
-}
 
 void displaySelectron(){
     unsigned char address;
@@ -268,29 +164,29 @@ void testMemory (unsigned char bit){
     unsigned char address;
     unsigned char i,k;
     unsigned char error_log[MAX_ERRORS]; 
-    unsigned char error_count = 0; 
+    int error_count = 0; 
     
-    LCD_SetCursor(1, 1);
-    LCD_String("SB256 W/R Test");
+    
+    LCD_String("SB256 W/R Test",1,1);
     error_count=0;
-        LCD_SetCursor(2,1);
-        LCD_String("WrAdd:");
-        LCD_SetCursor(2,11);
-        LCD_String("WrData:");
-        __delay_ms(DELAY_TIME);
+        
+        LCD_String("WrAdd:",2,1);
+        
+        LCD_String("WrData:",2,11);
+        __delay_us(DELAY_TIME);
         do{            
-            __delay_ms(DELAY_TIME);   
+            __delay_us(DELAY_TIME);   
             write_bit(address, bit);
             LCDWriteHex(address, 2, 8); 
             LCDWriteHex(bit, 2, 18); 
         } while (++address != 0);
         
-        LCD_SetCursor(2,1);
-        LCD_String("RdAdd:");
-        LCD_SetCursor(2,11);
-        LCD_String("RdData:");
+        
+        LCD_String("RdAdd:",2,1);
+        
+        LCD_String("RdData:",2,11);
         do{            
-            __delay_ms(DELAY_TIME);   
+            __delay_us(DELAY_TIME);   
             i=read_bit(address);
             if (i^bit) {
                  
@@ -305,16 +201,16 @@ void testMemory (unsigned char bit){
         
         //Prepare report
         if ((error_count==0)||(error_count>MAX_ERRORS)){
-            LCD_SetCursor(3,1);
-            LCD_String("                    ");           
-            LCD_SetCursor(4,1);
-            LCD_String("NumErrors       ");
+            
+            LCD_String("                    ",3,1);           
+            
+            LCD_String("NumErrors       ",4,1);
             LCDWriteInt(error_count,4,13);
         } else {
-            LCD_SetCursor(3,1);
-            LCD_String("                    ");
-            LCD_SetCursor(4,1);
-            LCD_String("                    ");
+            
+            LCD_String("                    ",3,1);
+            
+            LCD_String("                    ",4,1);
             for (k=0;k<error_count;k++){
                 if ((3*k+1)>20){
                     LCDWriteHex(error_log[k], 4, (3*k+1)-21); 
@@ -329,10 +225,10 @@ void testMemory (unsigned char bit){
 void toggle_display(unsigned char bit){
     unsigned char address;
     address=0;
-        LCD_SetCursor(2,1);
-        LCD_String("WrAdd:");
-        LCD_SetCursor(2,11);
-        LCD_String("WrData:");
+        
+        LCD_String("WrAdd:",2,1);
+        
+        LCD_String("WrData:",2,11);
         LCDWriteHex(bit, 2, 18); 
         do {            
             __delay_ms(10);   
@@ -349,7 +245,7 @@ void stream_message_to_selectron(const char* message) {
     
     expected_bits = (strlen(message) + 1) * 8;
 
-    if (expected_bits > 251) {// number of good bits.
+    if (expected_bits > 247) {// number of good bits.
         // Optional: Call an error routine, blink an LED, or truncate here
         return; 
     }
@@ -364,6 +260,7 @@ void stream_message_to_selectron(const char* message) {
         for (i = 0; i < 8; i++) {
             bit = 7 - i; 
             bit_value = (current_char >> bit) & 1;
+            __delay_us(DELAY_TIME);;
             write_bit(gadd[total_bits_written], bit_value);
             total_bits_written++;
         }// bit i
@@ -373,13 +270,14 @@ void stream_message_to_selectron(const char* message) {
     // 4. Write the 8-bit Null Terminator (\0)
     for (i = 0; i < 8; i++) {
         bit = 7 - i;
+        __delay_us(DELAY_TIME);
         write_bit(gadd[total_bits_written], 0);
         total_bits_written++;
     }//bit i
 }// stream
 
 
-// Reads the Selectron memory and populates your destination string array
+
 void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_size) {
     unsigned char total_bits_read = 0;
     unsigned char char_index = 0;
@@ -395,6 +293,7 @@ void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_s
         // Assemble 8 bits into a single character (MSB to LSB)
         for (i = 0; i < 8; i++) {
             bit = 7 - i;
+            __delay_us(DELAY_TIME);
             physical_bit = read_bit(gadd[total_bits_read]);
             
             if (physical_bit == 1) {
@@ -402,7 +301,7 @@ void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_s
             }
 
             // stop if we read the final bit of the tube (address 251 of gadd[])
-            if (total_bits_read == 250) {
+            if (total_bits_read == 246) {
                 running = 0; 
             }
             total_bits_read++;
@@ -434,6 +333,7 @@ int main(void)
     
     unsigned char address;
     unsigned char i, bit;
+    char my_lcd_buffer[32];
 
     SYSTEM_Initialize();
     // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts 
@@ -455,20 +355,58 @@ int main(void)
     init_SB256();          
     bit=0;
     __delay_ms(10);
-    address=0; 
-    
+ 
     LCD_Init();                 // Run HD44780 4-bit initialization sequence
     
-    
     //READ=0;   //makes it visual
-    READ=1;//make it not
+    READ = 1;//make it not
     while(1) {
-         
-        //toggle_display(bit);
-        __delay_ms(1000); 
         
-        testMemory (bit);//requires READ=1;
+        LCD_Clear();
+        LCD_String("WRITING MSG",1,1);
+        LCD_String("READ IN",4,1);
+         __delay_ms(1000);
+        stream_message_to_selectron(msg);
+        for (i=5;i>0;i--){
+           LCDWriteInt(i,4,13);
+        __delay_ms(1000);
+        }
+        read_message_from_selectron(my_lcd_buffer, 32);       
+        LCD_Clear();
+        LCD_String(my_lcd_buffer,1,1); 
+        
+        //__delay_ms(5000);
+        LCD_String("READOFF in",4,1);
+        for (i=5;i>0;i--){
+           LCDWriteInt(i,4,13);
+        __delay_ms(1000);
+        }
+        
+        READ=0;
+        LCD_String("READ ON in",4,1);
+        for (i=9;i>0;i--){
+           LCDWriteInt(i,4,13);
+        __delay_ms(1000);
+        }
+        READ=1;
+        LCD_String("RE-READ",4,1);
+        for (i=4;i>0;i--){
+           LCDWriteInt(i,4,13);
+        __delay_ms(1000);
+        }
+        read_message_from_selectron(my_lcd_buffer, 32);       
+        LCD_Clear();
+        LCD_String(my_lcd_buffer,1,1); 
+        
+        LCD_String("WRITE in",4,1);
+        for (i=5;i>0;i--){
+           LCDWriteInt(i,4,13);
+        __delay_ms(1000);
+        }
+        
+        //testMemory (bit);//requires READ=1;
         //displaySelectron();//requires READ=0;
+        //toggle_display(bit);//requires READ=0;
         bit=!bit;   
         
     
