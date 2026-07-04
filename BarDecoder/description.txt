@@ -16,3 +16,6 @@ Select:
 1 => deselect all bars.  i.e. all bars at -250V.  This is required when writing a 0 to a storage eyelet.
 
 Qpoint has priority. 
+
+
+characterMapTool.xlsx shows the order and position that bits are written.
