@@ -43,7 +43,7 @@
 
 #define MAX_ERRORS 12
 #define DELAY_TIME 100  //microseconds
-
+#define GADD_SIZE 247
 
 
     unsigned char t_list[13] = {24,20,12,16,8,4,44,43,11,9,41,42,10};
@@ -54,26 +54,46 @@
     unsigned char r_list[19]= {20,12,16,52,40,51,39,19,11,15,17,9,49,45,50,46,38,18,6};
     unsigned char n_list[24]={20,52,51,19,17,49,50,18,12,44,47,15,13,45,38,6,4,36,3,1,33,34,2};
     unsigned char o_list[20]= {12,16,52,44,48,40,51,39,19,7,17,5,49,37,50,42,46,38,10,14};
-    const unsigned char gadd[247] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
-    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 
-    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 
-    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 
-    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 77, 78, 79, 
-    80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 
-    96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 
-    111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 
-    127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 140, 141, 142, 144, 
-    145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 
-    161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 
-    178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 
-    194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 
-    210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 
-    226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 
-    242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 255
+    const unsigned char gadd[GADD_SIZE] = {
+    // === BLOCK 1 (+0) ===
+    31, 23, 19, 11, 15,  7,  3, 27,
+    63, 55, 51, 43, 47, 39, 35, 59,
+    62, 54, 50,     46, 38, 34, 58,  // Removed: 42
+    30, 22, 18, 10, 14,  6,  2, 26,
+    28, 20, 16,  8, 12,  4,  0, 24,
+    60, 52, 48, 40, 44, 36, 32, 56,
+    61, 53, 49, 41, 45, 37, 33, 57,
+    29, 21, 17,  9, 13,  5,  1, 25,
+    // === BLOCK 2 (+64) ===
+    95, 87, 83, 75, 79, 71, 67, 91,
+    127,119,115,    111,103, 99,123,  // Removed: 107
+        118,114,106,    102, 98,122,  // Removed: 126, 110
+    94, 86, 82, 74, 78, 70, 66, 90,
+    92, 84, 80, 72, 76, 68, 64, 88,
+    124,116,112,104,108,100, 96,120,
+    125,117,113,105,109,101, 97,121,
+    93, 85, 81, 73, 77, 69, 65, 89,
+    // === BLOCK 3 (+128) ===
+    159,151,147,    143,135,131,155,  // Removed: 139
+    191,183,179,171,175,167,163,187,
+    190,182,178,170,174,166,162,186,
+    158,150,146,138,142,134,    154,  // Removed: 130
+    156,148,144,136,140,132,128,152,
+    188,180,176,168,172,164,160,184,
+    189,181,177,169,173,165,161,185,
+    157,149,145,137,141,133,129,153,
+    // === BLOCK 4 (+192) ===
+    223,215,211,203,207,199,195,219,
+    255,247,243,235,239,231,227,251,
+        246,242,234,238,230,226,250,  // Removed: 254
+    222,214,210,202,206,198,194,218,
+    220,212,208,200,204,196,192,216,
+    252,244,240,232,236,228,224,248,
+    253,245,241,233,237,229,225,249,
+    221,213,209,            197,193,217   // Removed: 201, 205
 };
 
-    const char* msg = "HELLO WORLD!\nSB256";
+    const char* msg = "HELLO WORLD!\nMy name is SB256";
 
 
 void displaySelectron(){
@@ -165,76 +185,64 @@ void testMemory (unsigned char bit){
     unsigned char i,k;
     unsigned char error_log[MAX_ERRORS]; 
     int error_count = 0; 
-    
-    
     LCD_String("SB256 W/R Test",1,1);
     error_count=0;
-        
-        LCD_String("WrAdd:",2,1);
-        
-        LCD_String("WrData:",2,11);
-        __delay_us(DELAY_TIME);
-        do{            
-            __delay_us(DELAY_TIME);   
+    LCD_String("WrAdd:",2,1);
+    LCD_String("WrData:",2,11);
+    __delay_us(DELAY_TIME);
+    address=0;
+    do{            
+       __delay_us(DELAY_TIME);   
             write_bit(address, bit);
             LCDWriteHex(address, 2, 8); 
             LCDWriteHex(bit, 2, 18); 
-        } while (++address != 0);
-        
-        
-        LCD_String("RdAdd:",2,1);
-        
-        LCD_String("RdData:",2,11);
-        do{            
-            __delay_us(DELAY_TIME);   
-            i=read_bit(address);
-            if (i^bit) {
-                 
-                if (error_count < MAX_ERRORS){
-                    error_log[error_count]=address;
+     } while (++address != 0);// cheat to cover 0 to 256 using an 8-bit variable
+    LCD_String("RdAdd:",2,1);
+    LCD_String("RdData:",2,11);
+    address=0;
+    do{            
+        __delay_us(DELAY_TIME);   
+        i=read_bit(address);
+        if (i^bit) {
+            if (error_count < MAX_ERRORS){
+                error_log[error_count]=address;
                 } 
-                error_count++;
+            error_count++;
+        }
+        LCDWriteHex(address, 2, 8); 
+        LCDWriteHex(i, 2, 18); 
+    } while (++address != 0);
+    //Prepare report
+    if ((error_count==0)||(error_count>MAX_ERRORS)){
+        LCD_String("                    ",3,1);           
+        LCD_String("NumErrors       ",4,1);
+        LCDWriteInt(error_count,4,13);
+    } else {
+        LCD_String("                    ",3,1);
+        LCD_String("                    ",4,1);
+        for (k=0;k<error_count;k++){
+            if ((3*k+1)>20){
+                LCDWriteHex(error_log[k], 4, (3*k+1)-21); 
+            }else{
+            LCDWriteHex(error_log[k], 3, (3*k+1));
             }
-            LCDWriteHex(address, 2, 8); 
-            LCDWriteHex(i, 2, 18); 
-        } while (++address != 0);
-        
-        //Prepare report
-        if ((error_count==0)||(error_count>MAX_ERRORS)){
-            
-            LCD_String("                    ",3,1);           
-            
-            LCD_String("NumErrors       ",4,1);
-            LCDWriteInt(error_count,4,13);
-        } else {
-            
-            LCD_String("                    ",3,1);
-            
-            LCD_String("                    ",4,1);
-            for (k=0;k<error_count;k++){
-                if ((3*k+1)>20){
-                    LCDWriteHex(error_log[k], 4, (3*k+1)-21); 
-                }else{
-                    LCDWriteHex(error_log[k], 3, (3*k+1));
-                }
-                
-            }
-        }  
+        }
+    }  
 }
+
 //TO DO  change all for (address) loops to DO WHILE loops like this.)
 void toggle_display(unsigned char bit){
     unsigned char address;
-    address=0;
-        
-        LCD_String("WrAdd:",2,1);
-        
-        LCD_String("WrData:",2,11);
-        LCDWriteHex(bit, 2, 18); 
-        do {            
-            __delay_ms(10);   
-            write_bit(address, bit);
-            LCDWriteHex(address, 2, 8);    
-        } while (++address != 0);
+    address=0; // important
+    LCD_String("WrAdd:",2,1);
+    LCD_String("WrData:",2,11);
+    LCDWriteHex(bit, 2, 18);
+    do {            
+        __delay_us(DELAY_TIME);   
+        write_bit(address, bit);
+        LCDWriteHex(address, 2, 8);    
+    } while (++address != 0);//cheat to cover all 256, 0x00 to 0xFF using an 8 bit variable.
+    //supposed to be more efficient than a for-next loop using an int.
 }
 
 void stream_message_to_selectron(const char* message) {
@@ -245,7 +253,7 @@ void stream_message_to_selectron(const char* message) {
     
     expected_bits = (strlen(message) + 1) * 8;
 
-    if (expected_bits > 247) {// number of good bits.
+    if (expected_bits > GADD_SIZE) {// number of good bits.
         // Optional: Call an error routine, blink an LED, or truncate here
         return; 
     }
@@ -301,7 +309,7 @@ void read_message_from_selectron(char* output_buffer, unsigned char max_buffer_s
             }
 
             // stop if we read the final bit of the tube (address 251 of gadd[])
-            if (total_bits_read == 246) {
+            if (total_bits_read == GADD_SIZE - 1) {
                 running = 0; 
             }
             total_bits_read++;
@@ -363,12 +371,16 @@ int main(void)
     while(1) {
         
         LCD_Clear();
+        //LCD_String("CLEAR SB256",1,1);
+        //toggle_display(0);
+        //LCD_Clear();
         LCD_String("WRITING MSG",1,1);
-        LCD_String("READ IN",4,1);
-         __delay_ms(1000);
         stream_message_to_selectron(msg);
+        __delay_ms(1000);
+        LCD_Clear();
+        LCD_String("READ DATA in",4,1);
         for (i=5;i>0;i--){
-           LCDWriteInt(i,4,13);
+           LCDWriteInt(i,4,18);
         __delay_ms(1000);
         }
         read_message_from_selectron(my_lcd_buffer, 32);       
@@ -376,31 +388,31 @@ int main(void)
         LCD_String(my_lcd_buffer,1,1); 
         
         //__delay_ms(5000);
-        LCD_String("READOFF in",4,1);
+        LCD_String("READPLATEOFF in",4,1);
         for (i=5;i>0;i--){
-           LCDWriteInt(i,4,13);
+           LCDWriteInt(i,4,18);
         __delay_ms(1000);
         }
         
         READ=0;
-        LCD_String("READ ON in",4,1);
+        LCD_String("READPLATE ON in",4,1);
         for (i=9;i>0;i--){
-           LCDWriteInt(i,4,13);
+           LCDWriteInt(i,4,18);
         __delay_ms(1000);
         }
         READ=1;
-        LCD_String("RE-READ",4,1);
+        LCD_String("RE-READ DATA in ",4,1);
         for (i=4;i>0;i--){
-           LCDWriteInt(i,4,13);
+           LCDWriteInt(i,4,18);
         __delay_ms(1000);
         }
         read_message_from_selectron(my_lcd_buffer, 32);       
         LCD_Clear();
         LCD_String(my_lcd_buffer,1,1); 
         
-        LCD_String("WRITE in",4,1);
+        LCD_String("WRITE DATA in",4,1);
         for (i=5;i>0;i--){
-           LCDWriteInt(i,4,13);
+           LCDWriteInt(i,4,18);
         __delay_ms(1000);
         }
         
