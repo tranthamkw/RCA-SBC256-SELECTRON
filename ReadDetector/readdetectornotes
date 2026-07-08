@@ -11,3 +11,8 @@ DS0018.bmp, DS0016.bmp
 DS0020,21,22.bmp.  yellow curve output of transimpedance amplifier. blue, output of lowpass & non-inverting amplifier
 
 added a comparitor to set a "lower level discriminator" to set the minimum pulse height to triger the RS latch
+
+
+7-7-26: constructed PCB, found error in schematic.  Schematic update, but PCB had to be cut and jumper wire added.  Also,
+changed filter capacitors to 5pF and 10pF to raise the cut off frequency.  i.e. the filtering not as agressive.
+updated transimpedance output and final output DS0022 - DS0024.bmp
