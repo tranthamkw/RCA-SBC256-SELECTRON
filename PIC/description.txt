@@ -1,7 +1,7 @@
 
 Code used to develop the selectron project.
 
-General files needed to build the project as describe. These are the basic configurations and starting code.
+General files needed to build the project as described. These are the basic configurations and starting code.
 Project is/was built in MPLABX; and one needs to know how to use this enviroment
 
 PORT D: all outputs. used to select an address. 
