@@ -16,3 +16,6 @@ added a comparitor to set a "lower level discriminator" to set the minimum pulse
 7-7-26: constructed PCB, found error in schematic.  Schematic update, but PCB had to be cut and jumper wire added.  Also,
 changed filter capacitors to 5pF and 10pF to raise the cut off frequency.  i.e. the filtering not as agressive.
 updated transimpedance output and final output DS0022 - DS0024.bmp
+
+Also added low pass filtering to the 400volt faraday power supply.  Series inductor and parallel capacitor. this significantly improved baseline noise allowing the threshold to be lowered.
+
