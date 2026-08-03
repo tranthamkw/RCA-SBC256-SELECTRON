@@ -17,7 +17,7 @@ Specific electrical implementation to drive the SB256
 
 4/12/22  Reduced delay times in PIC code to see how fast we can reliably write to the memory.  An unused PIC output wrote 0 at the begining of the write process, then 1 at the end of writing all 256 bits.  The time to write 0 to the eyelets is slightly longer than 1, (see the eyelet I-V curve and writing description).  The nominal time to write is about 60mS. Oh gosh! 256 bits in 60mS!
 256 bits / (1024^2 bits per MB) / 60mS = 0.004 MB/S.  OR, put another way, it would take 245 seconds = 4 ish minutes to write a MB.  
-
+***This has been greatly improved. see below.
 
 6-25-26
 first attempts to get a read detector working. posted schematics and some scope timing diagrams.  Coding PIC to document which bit locations do not read what was written to them. So far appproximatily 10 errors out of 256 bits. 
@@ -26,3 +26,6 @@ first attempts to get a read detector working. posted schematics and some scope 
 
 7-3-26:  Greatly reduced read errors. delay time between read/write each bit 100uS.  moved reading RS latch to 150uS and extended time to turn off READ 75uS.  Able to save and read ASCII messages to SB256
 
+7-9-26: Installed series inductor (100's of mH, Actual L unknown, old tube radio power inductor) and 120uF parallel capacitor. completely removed 60Hz hum observed in video 4.  This allowed the read threshold level to be reduced.  The write and read to the SB256 is virtually error free. 
+
+8-2-28: added timer code (pic TMR1) to measure the time to write messages. A typical 30 character ascii message takes about 126mS to write. 
