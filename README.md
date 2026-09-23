@@ -28,4 +28,4 @@ first attempts to get a read detector working. posted schematics and some scope 
 
 7-9-26: Installed series inductor (100's of mH, Actual L unknown, old tube radio power inductor) and 120uF parallel capacitor. completely removed 60Hz hum observed in video 4.  This allowed the read threshold level to be reduced.  The write and read to the SB256 is virtually error free. 
 
-8-2-28: added timer code (pic TMR1) to measure the time to write messages. A typical 30 character ascii message takes about 126mS to write. 
+8-2-26: added timer code (pic TMR1) to measure the time to write messages. A typical 30 character ascii message takes about 126mS to write. 
